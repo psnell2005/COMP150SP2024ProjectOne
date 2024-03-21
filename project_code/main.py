@@ -1,8 +1,16 @@
 # main.py
 import sys
+import random
+from enum import Enum
 from project_code.src.UserInputParser import UserInputParser
 from project_code.src.InstanceCreator import InstanceCreator
 from project_code.src.UserFactory import UserFactory
+
+class EventStatus(Enum):
+     UNKNOWN = "unknown"
+     PASS = "pass"
+     FAIL = "fail"
+     PARTIAL = "partial pass"
 
 def start_game():
     parser = UserInputParser()
@@ -122,13 +130,37 @@ character20 = Character(name="Luke")
 
 
 class Event:
-    def __init__(self, name, requirements, success_outcome, partial_success_outcome, failure_outcome):
-        self.name = name
-        self.requirements = requirements
-        self.success_outcome = success_outcome
-        self.partial_success_outcome = partial_success_outcome
-        self.failure_outcome = failure_outcome
+    def __init__(self, parser):
+                self.parser = parser
+                self.status = EventStatus.UNKNOWN
+                self.fail = {
+                    "message": "You failed."
+                }
+                self.pass = {
+                    "message": "You passed."
+                self.partial_pass = {
+                    "message": "You partially passed."
+                }
+                self.primary: Statistic = Strength() 
+                self.secondary: Statistic = Dexterity() 
+                 
+    def execute(self, party):
+        self.parser.select_party_member(party)
+        chosen_one = self.parser.select_party_member(party)
+        chosen_skill = self.parser.select_skill(chosen_one)
+        self.set_status(EventStatus.PASS)
+        pass 
 
+    def set_status(self, status: EventStatus = EventStatus.UNKNOWN) 
+        self.status = status 
+    
+    def resolve_choice(self, party, character, chosen_skill):
+        # check if the skill attributes overlap with the event attributes 
+        # if they don't, the character fails 
+        # if they do overlap, character passes
+        # if one overlaps, the character partially passes 
+        # to do this: make some checks --> is attr in skill, etc.
+                 
 class Game:
     def __init__(self, parser):
         self.parser = parser
@@ -156,7 +188,10 @@ class Game:
 
     def _initialize_game(self):
         """Initialize the game with characters, locations, and events based on the user's properties."""
-        pass
+        character_list = [Character() for _in range(10)]
+        location_list = [Location() for _in range(2)]
+
+        for character in character_list:
 
     def start_game(self):
         return self._main_game_loop()
@@ -164,21 +199,21 @@ class Game:
     def _main_game_loop(self):
         """The main game loop."""
         while self.continue_playing:
-            response = self.input.parse("What would you like to do?")
-            if response:
-                self.continue_playing = False 
-            # ask for user input
-            # parse user input
-            # update game state
-            # check if party is all dead
-            # if part is dead, award legacy points and end instance of game
-            # if party is not dead, continue game
-        if self.continue_playing is False:
-            return True
-        elif self.continue_playing == "Save and quit":
-            return "Save and quit"
-        else:
-            return False
+            self.current_location = self.locations[0]
+            self.current_event = self.current_location.getEvent()
+            self.current_event.execute()
+
+            if self.party is None:
+                self.continue_playing = False
+                return "Save and quit"
+            else:
+                continue 
+            if self.continue_playing is False:
+                return True
+            elif self.continue_playing == "Save and quit":
+                return "Save and quit"
+            else:
+                return False
         
 class UserFactory:
 
@@ -212,9 +247,10 @@ class InstanceCreator:
         pass
 
 class Location:
-    pass
-
-import random
+    
+    def __init__(self, parser, number_of_events: int = 1): 
+        self.parser = parser
+        self.events = [Event(self.parser) for _in range(number_of_events)]
 
 
 class Statistic:
