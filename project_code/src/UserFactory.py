@@ -10,4 +10,4 @@ class UserFactory:
         username = parser.parse("Enter a username: ")
         password = parser.parse("Enter a password: ")
         # Here you can add more logic as needed, e.g., validate input
-        return User(username, password)
+        return User(parser, username=username, password=password)

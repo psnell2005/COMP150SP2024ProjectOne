@@ -29,9 +29,60 @@ class Statistic:
 
 
 class Strength(Statistic):
-
     def __init__(self, value):
         super().__init__(value)
         self.description = "Strength is a measure of physical power."
 
-# and so on for the other statistics
+class Dexterity(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Dexterity is a measure of agility and reflexes."
+
+
+class Constitution(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Constitution is a measure of resilience and endurance."
+
+
+class Vitality(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Vitality is a measure of overall health and vigor."
+
+
+class Endurance(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Endurance is a measure of stamina and resistance to fatigue."
+
+
+class Intelligence(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Intelligence is a measure of cognitive ability and problem-solving skills."
+
+
+class Wisdom(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Wisdom is a measure of insight, intuition, and judgment."
+
+
+class Knowledge(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Knowledge is a measure of accumulated information and expertise."
+
+
+class Willpower(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Willpower is a measure of determination and mental resilience."
+
+
+class Spirit(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Spirit is a measure of connection to otherworldly energies and metaphysical strength."
+

@@ -18,8 +18,76 @@ class Character:
          """
         self.name = self._generate_name() if name is None else name
         self.strength: Strength = Strength(self)
-        # etc
-        # self.intelligence: Intelligence = Intelligence(self)
-
+        self.dexterity: Dexterity = Dexterity(self)
+        self.constitution: Constitution = Constitution(self)
+        self.vitality: Vitality = Vitality(self)
+        self.endurance: Endurance = Endurance(self)
+        self.intelligence: Intelligence = Intelligence(self)
+        self.wisdom: Wisdom = Wisdom(self)
+        self.knowledge: Knowledge = Knowledge(self)
+        self.willpower: Willpower = Willpower(self)
+        self.spirit: Spirit = Spirit(self)
+        
     def _generate_name(self):
         return "Bob"
+
+character1 = Character(name="Miller")
+
+
+character2 = Character(name="James")
+
+
+character3 = Character(name="Jen")
+ 
+
+character4 = Character(name="Phoebe")
+
+
+character5 = Character(name="Therese")
+
+
+character6 = Character(name="Larry")
+
+
+character7 = Character(name="Gabe")
+
+
+character8 = Character(name="Trinity")
+
+
+character9 = Character(name="Johnathan")
+
+
+character10 = Character(name="Arjun")
+
+
+character11 = Character(name="Milosz")
+
+
+character12 = Character(name="Hookah")
+
+
+character13 = Character(name="Sherron")
+
+
+character14 = Character(name="Abdullah")
+ 
+
+character15 = Character(name="Abdul")
+
+
+character16 = Character(name="Alex C.")
+
+
+character17 = Character(name="Adriana") 
+
+
+character18 = Character(name="Alex P.")
+
+
+character19 = Character(name="Jay")
+
+
+character20 = Character(name="Luke")
+
+

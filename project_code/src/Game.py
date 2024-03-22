@@ -7,7 +7,7 @@ from project_code.src.Location import Location
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, input):
         self.characters: List[Character] = []
         self.locations: List[Location] = []
         self.events: List[Event] = []
@@ -16,6 +16,7 @@ class Game:
         self.current_event = None
         self._initialize_game()
         self.continue_playing = True
+        self.input = input
 
     def add_character(self, character: Character):
         """Add a character to the game."""
@@ -39,7 +40,9 @@ class Game:
     def _main_game_loop(self):
         """The main game loop."""
         while self.continue_playing:
-            pass
+            response = self.input.parse("What would you like to do?")
+            if response:
+                self.continue_playing = False 
             # ask for user input
             # parse user input
             # update game state
