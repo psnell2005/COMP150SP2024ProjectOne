@@ -1,16 +1,184 @@
 # main.py
 import sys
 import random
-from enum import Enum
 from project_code.src.UserInputParser import UserInputParser
 from project_code.src.InstanceCreator import InstanceCreator
 from project_code.src.UserFactory import UserFactory
+from project_code.src.EventInputParser import EventInputParser
+
+
+from enum import Enum 
+
+class UserInputParser:
+
+    def __init__(self):
+        self.style = "console"
+
+    def parse(self, prompt) -> str:
+        response: str = input(prompt)
+        return response
+    
+class EventInputParser:
+    def __init__(self):
+        self.style = "console"
+
+    def select_party_member(self, party):
+        # Logic to select a party member
+        pass
+
+    def select_skill(self, character):
+        # Logic to select a skill for a specific character
+        pass
+
+class Statistic:
+    def __init__(self, legacy_points: int):
+        self.value = self._generate_starting_value(legacy_points)
+        self.description = None
+        self.min_value = 0
+        self.max_value = 100
+
+    def __str__(self):
+        return f"{self.value}"
+
+    def increase(self, amount):
+        self.value += amount
+        if self.value > self.max_value:
+            self.value = self.max_value
+
+    def decrease(self, amount):
+        self.value -= amount
+        if self.value < self.min_value:
+            self.value = self.min_value
+
+    def _generate_starting_value(self, legacy_points: int):
+        """Generate a starting value for the statistic based on random number and user properties."""
+        """This is just a placeholder for now. Perhaps some statistics will be based on user properties, and others 
+        will be random."""
+        return legacy_points % 100 + random.randint(1, 3)
+
+
+class Strength(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Strength is a measure of physical power."
+
+class Dexterity(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Dexterity is a measure of agility and reflexes."
+
+
+class Constitution(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Constitution is a measure of resilience and endurance."
+
+
+class Vitality(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Vitality is a measure of overall health and vigor."
+
+
+class Endurance(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Endurance is a measure of stamina and resistance to fatigue."
+
+
+class Intelligence(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Intelligence is a measure of cognitive ability and problem-solving skills."
+
+
+class Wisdom(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Wisdom is a measure of insight, intuition, and judgment."
+
+
+class Knowledge(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Knowledge is a measure of accumulated information and expertise."
+
+
+class Willpower(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Willpower is a measure of determination and mental resilience."
+
+
+class Spirit(Statistic):
+    def __init__(self, value):
+        super().__init__(value)
+        self.description = "Spirit is a measure of connection to otherworldly energies and metaphysical strength."
 
 class EventStatus(Enum):
      UNKNOWN = "unknown"
      PASS = "pass"
      FAIL = "fail"
      PARTIAL = "partial pass"
+
+    
+class Event:
+    def __init__(self, parser: EventInputParser):
+                self.parser = parser
+                self.status = EventStatus.UNKNOWN
+                self.fail = {
+                    "message": "You failed."
+                }
+                self.pass = {
+                    "message": "You passed."
+                }
+                self.partial_pass = {
+                    "message": "You partially passed."
+                }
+                self.primary: Statistic = Strength() 
+                self.secondary: Statistic = Dexterity() 
+                 
+    def execute(self, party):
+        self.parser.select_party_member(party)
+        chosen_one = self.parser.select_party_member(party)
+        chosen_skill = self.parser.select_skill(chosen_one)
+        self.set_status(EventStatus.PASS)
+        pass 
+
+    def set_status(self, status: EventStatus = EventStatus.UNKNOWN):
+        self.status = status 
+    
+    def resolve_choice(self, party, character, chosen_skill):
+        # check if the skill attributes overlap with the event attributes 
+        # if they don't, the character fails 
+        # if they do overlap, character passes
+        # if one overlaps, the character partially passes 
+        # to do this: make some checks --> is attr in skill, etc.
+                 
+class UserFactory:
+
+    def create_user(parser: UserInputParser) -> User:
+        username = parser.parse("Enter a username: ")
+        password = parser.parse("Enter a password: ")
+        # Here you can add more logic as needed, e.g., validate input
+        return User(parser, username=username, password=password)
+
+class User:
+
+    def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
+        self.username = username
+        self.password = password
+        self.legacy_points = legacy_points
+        self.parser = parser 
+        self.current_game = self._get_retrieve_saved_game_state_or_create_new_game()
+
+    def _get_retrieve_saved_game_state_or_create_new_game(self) -> Game:
+        new_game = Game(self.parser)
+        return new_game
+
+    def save_game(self):
+        pass
+
 
 def start_game():
     parser = UserInputParser()
@@ -128,39 +296,12 @@ character19 = Character(name="Jay")
 
 character20 = Character(name="Luke")
 
-
-class Event:
-    def __init__(self, parser):
-                self.parser = parser
-                self.status = EventStatus.UNKNOWN
-                self.fail = {
-                    "message": "You failed."
-                }
-                self.pass = {
-                    "message": "You passed."
-                self.partial_pass = {
-                    "message": "You partially passed."
-                }
-                self.primary: Statistic = Strength() 
-                self.secondary: Statistic = Dexterity() 
-                 
-    def execute(self, party):
-        self.parser.select_party_member(party)
-        chosen_one = self.parser.select_party_member(party)
-        chosen_skill = self.parser.select_skill(chosen_one)
-        self.set_status(EventStatus.PASS)
-        pass 
-
-    def set_status(self, status: EventStatus = EventStatus.UNKNOWN) 
-        self.status = status 
+class Location:
     
-    def resolve_choice(self, party, character, chosen_skill):
-        # check if the skill attributes overlap with the event attributes 
-        # if they don't, the character fails 
-        # if they do overlap, character passes
-        # if one overlaps, the character partially passes 
-        # to do this: make some checks --> is attr in skill, etc.
-                 
+    def __init__(self, parser, number_of_events: int = 1): 
+        self.parser = parser
+        self.events = [Event(self.parser) for _in range(number_of_events)]
+
 class Game:
     def __init__(self, parser):
         self.parser = parser
@@ -215,15 +356,6 @@ class Game:
             else:
                 return False
         
-class UserFactory:
-
-    def create_user(parser: UserInputParser) -> User:
-        username = parser.parse("Enter a username: ")
-        password = parser.parse("Enter a password: ")
-        # Here you can add more logic as needed, e.g., validate input
-        return User(parser, username=username, password=password)
-
-        
 class InstanceCreator:
 
     def __init__(self, user_factory: UserFactory, parser: UserInputParser):
@@ -245,121 +377,3 @@ class InstanceCreator:
 
     def _load_user(self) -> User:
         pass
-
-class Location:
-    
-    def __init__(self, parser, number_of_events: int = 1): 
-        self.parser = parser
-        self.events = [Event(self.parser) for _in range(number_of_events)]
-
-
-class Statistic:
-    def __init__(self, legacy_points: int):
-        self.value = self._generate_starting_value(legacy_points)
-        self.description = None
-        self.min_value = 0
-        self.max_value = 100
-
-    def __str__(self):
-        return f"{self.value}"
-
-    def increase(self, amount):
-        self.value += amount
-        if self.value > self.max_value:
-            self.value = self.max_value
-
-    def decrease(self, amount):
-        self.value -= amount
-        if self.value < self.min_value:
-            self.value = self.min_value
-
-    def _generate_starting_value(self, legacy_points: int):
-        """Generate a starting value for the statistic based on random number and user properties."""
-        """This is just a placeholder for now. Perhaps some statistics will be based on user properties, and others 
-        will be random."""
-        return legacy_points % 100 + random.randint(1, 3)
-
-
-class Strength(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Strength is a measure of physical power."
-
-class Dexterity(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Dexterity is a measure of agility and reflexes."
-
-
-class Constitution(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Constitution is a measure of resilience and endurance."
-
-
-class Vitality(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Vitality is a measure of overall health and vigor."
-
-
-class Endurance(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Endurance is a measure of stamina and resistance to fatigue."
-
-
-class Intelligence(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Intelligence is a measure of cognitive ability and problem-solving skills."
-
-
-class Wisdom(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Wisdom is a measure of insight, intuition, and judgment."
-
-
-class Knowledge(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Knowledge is a measure of accumulated information and expertise."
-
-
-class Willpower(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Willpower is a measure of determination and mental resilience."
-
-
-class Spirit(Statistic):
-    def __init__(self, value):
-        super().__init__(value)
-        self.description = "Spirit is a measure of connection to otherworldly energies and metaphysical strength."
-
-class User:
-
-    def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
-        self.username = username
-        self.password = password
-        self.legacy_points = legacy_points
-        self.parser = parser 
-        self.current_game = self._get_retrieve_saved_game_state_or_create_new_game()
-
-    def _get_retrieve_saved_game_state_or_create_new_game(self) -> Game:
-        new_game = Game(self.parser)
-        return new_game
-
-    def save_game(self):
-        pass
-
-
-class UserInputParser:
-
-    def __init__(self):
-        self.style = "console"
-
-    def parse(self, prompt) -> str:
-        response: str = input(prompt)
-        return response
