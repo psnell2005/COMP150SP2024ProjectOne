@@ -237,64 +237,12 @@ class Character:
     def _generate_name(self):
         return "Bob"
 
-character1 = Character(name="Miller")
+character1 = Character(name="Prof")
+character2 = Character(name="Jen")
+character3 = Character(name="Therese")
+character4 = Character(name="Larry")
+character5 = Character(name="Arjun")
 
-
-character2 = Character(name="James")
-
-
-character3 = Character(name="Jen")
- 
-
-character4 = Character(name="Phoebe")
-
-
-character5 = Character(name="Therese")
-
-
-character6 = Character(name="Larry")
-
-
-character7 = Character(name="Gabe")
-
-
-character8 = Character(name="Trinity")
-
-
-character9 = Character(name="Johnathan")
-
-
-character10 = Character(name="Arjun")
-
-
-character11 = Character(name="Milosz")
-
-
-character12 = Character(name="Hookah")
-
-
-character13 = Character(name="Sherron")
-
-
-character14 = Character(name="Abdullah")
- 
-
-character15 = Character(name="Abdul")
-
-
-character16 = Character(name="Alex C.")
-
-
-character17 = Character(name="Adriana") 
-
-
-character18 = Character(name="Alex P.")
-
-
-character19 = Character(name="Jay")
-
-
-character20 = Character(name="Luke")
 
 class Location:
     
