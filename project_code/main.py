@@ -1,13 +1,74 @@
 # main.py
 import sys
 import random
-from project_code.src.UserInputParser import UserInputParser
-from project_code.src.InstanceCreator import InstanceCreator
-from project_code.src.UserFactory import UserFactory
-from project_code.src.EventInputParser import EventInputParser
+from enum import Enum
+from typing import List
+
+# Assuming these modules are provided within the code snippet
+from .UserInputParser import UserInputParser
+from .InstanceCreator import InstanceCreator
+from .UserFactory import UserFactory
+from .EventInputParser import EventInputParser
+
+# Ensuring other modules used in the code are imported properly
+from .Statistic import Statistic, Strength, Dexterity, Constitution, Vitality, Endurance, Intelligence, Wisdom, Knowledge, Willpower, Spirit
+from .EventStatus import EventStatus
+from .Event import Event
+from .User import User
+from .Character import Character
+from .Location import Location
+from .Game import Game
+
+# Add the function definitions here
+import pickle
+
+def save_to_file(data, filename="saved_game_state.pickle"):
+    """Save game state data to a file."""
+    with open(filename, "wb") as file:
+        pickle.dump(data, file)
+
+def load_from_file(filename="saved_game_state.pickle"):
+    """Load game state data from a file."""
+    try:
+        with open(filename, "rb") as file:
+            data = pickle.load(file)
+        return data
+    except FileNotFoundError:
+        return None 
+    
+if __name__ == '__main__':
+    start_game()
 
 
-from enum import Enum 
+def serialize_game_state(game_state):
+    """Serialize the game state data to a format suitable for saving."""
+    # You can implement this function based on your game's requirements
+    # For example, you can convert the game state object into a dictionary
+    # containing all the necessary information to reconstruct the game state.
+    serialized_data = {...}  # Fill this with appropriate data
+    return serialized_data
+
+def deserialize_game_state(serialized_data):
+    """Deserialize the serialized game state data."""
+    # You can implement this function to convert serialized data back into
+    # the game state object, using the appropriate logic to reconstruct
+    # the game state from the serialized data.
+    game_state = ...  # Reconstruct game state from serialized data
+    return game_state
+
+def load_user_data_from_storage(filename="user_data.pickle"):
+    """Load user data from storage."""
+    try:
+        with open(filename, "rb") as file:
+            user_data = pickle.load(file)
+        return user_data
+    except FileNotFoundError:
+        return None
+
+def save_user_data_to_storage(user_data, filename="user_data.pickle"):
+    """Save user data to storage."""
+    with open(filename, "wb") as file:
+        pickle.dump(user_data, file)
 
 class UserInputParser:
 
@@ -23,12 +84,10 @@ class EventInputParser:
         self.style = "console"
 
     def select_party_member(self, party):
-        # Logic to select a party member
-        pass
-
+        return random.choice(party)
+    
     def select_skill(self, character):
-        # Logic to select a skill for a specific character
-        pass
+        return random.choice(character.skills)
 
 class Statistic:
     def __init__(self, legacy_points: int):
@@ -149,12 +208,55 @@ class Event:
         self.status = status 
     
     def resolve_choice(self, party, character, chosen_skill):
-        # check if the skill attributes overlap with the event attributes 
-        # if they don't, the character fails 
-        # if they do overlap, character passes
-        # if one overlaps, the character partially passes 
-        # to do this: make some checks --> is attr in skill, etc.
-                 
+        event_attributes = [attribute for attribute in dir(self) if not attribute.startswith('__')]
+        skill_attributes = [attribute for attribute in dir(chosen_skill) if not attribute.startswith('__')]
+
+        overlapping_attributes = [attr for attr in event_attributes if attr in skill_attributes]
+
+        if len(overlapping_attributes) == 0:
+            return "You failed."
+        elif len(overlapping_attributes) == len(event_attributes):
+            return "You passed."
+        else:
+            return "You partially passed."
+        
+event1 = Event(
+    name="Gathering Allies",
+    requirements="Convince various kingdoms to join forces against the Demon King.",
+    success_outcome="The heroes successfully unite all villagers and kingdoms, forming a powerful team.",
+    partial_success_outcome="Some kingdoms join the alliance, but others remain skeptical or refuse to cooperate fully.",
+    failure_outcome="You fail to convince any kingdoms to join their mission, weakening their chances against the Demon King."
+)
+
+event2 = Event(
+    name="Obtaining Legendary Weapons",
+    requirements="Embark on a perilous journey to find and retrieve legendary weapons rumored to be capable of defeating the Demon King.",
+    success_outcome="The heroes locate and acquire powerful artifacts that enhance their abilities and increase their chances of victory.",
+    partial_success_outcome="The heroes find some legendary weapons, but not all of them. They must make do with what they have.",
+    failure_outcome="The heroes are unable to find any legendary weapons, leaving them ill-prepared for the final battle against the Demon King."
+)
+
+event3 = Event(
+    name="Infiltrating the Demon King's Fortress",
+    requirements="Sneak into the heavily guarded fortress of the Demon King to gather intelligence and weaken his defenses.",
+    success_outcome="The heroes successfully infiltrate the fortress, sabotaging key elements of the Demon King's army and gaining valuable information.",
+    partial_success_outcome="The heroes manage to enter the fortress but are quickly discovered, forcing them to retreat before completing their mission.",
+    failure_outcome="The heroes are captured while attempting to infiltrate the fortress, giving the Demon King the upper hand in the upcoming battle."
+)
+
+event4 = Event(
+    name="Confrontation with the Demon King",
+    requirements="Engage in a climactic battle with the Demon King to decide the fate of the world.",
+    success_outcome="Through courage, teamwork, and determination, the heroes emerge victorious, vanquishing the Demon King and saving the world from his tyranny.",
+    partial_success_outcome="The heroes put up a valiant fight, but the Demon King proves too powerful to defeat outright. They manage to weaken him, buying time for a temporary retreat.",
+    failure_outcome="Despite their best efforts, the heroes are no match for the overwhelming might of the Demon King. They are defeated, and the world falls under his control."
+)
+
+game_instance.add_event(event1)
+game_instance.add_event(event2)
+game_instance.add_event(event3)
+game_instance.add_event(event4)
+
 class UserFactory:
 
     def create_user(parser: UserInputParser) -> User:
@@ -177,34 +279,8 @@ class User:
         return new_game
 
     def save_game(self):
-        pass
-
-
-def start_game():
-    parser = UserInputParser()
-    user_factory = UserFactory()
-    instance_creator = InstanceCreator(user_factory, parser)
-
-    response = parser.parse("Would you like to start a new game? (yes/no)")
-    print(f"Response: {response}")
-    user = instance_creator.get_user_info(response)
-    if user is not None:
-        game_instance = user.current_game
-        if game_instance is not None:
-            response = game_instance.start_game()
-            if response == "Save and quit":
-                user.save_game()
-                print("Game saved. Goodbye!")
-                sys.exit()
-            elif response:
-                print("Goodbye!")
-                sys.exit()
-    else:
-        print("See you next time!")
-        sys.exit()
-
-if __name__ == '__main__':
-    start_game()
+       game_state = self.sterialize_game_state()
+       save_to_file(game_state)  
 
 class Character:
 
@@ -235,14 +311,8 @@ class Character:
         self.spirit: Spirit = Spirit(self)
         
     def _generate_name(self):
-        return "Bob"
-
-character1 = Character(name="Prof")
-character2 = Character(name="Jen")
-character3 = Character(name="Therese")
-character4 = Character(name="Larry")
-character5 = Character(name="Arjun")
-
+        names = ['Prof', 'Jen', 'Therese', 'Larry', 'Arjun']
+        return random.choice(names)
 
 class Location:
     
@@ -259,9 +329,7 @@ class Game:
         self.party: List[Character] = []
         self.current_location = None
         self.current_event = None
-        self._initialize_game()
         self.continue_playing = True
-        
 
     def add_character(self, character: Character):
         """Add a character to the game."""
@@ -277,32 +345,60 @@ class Game:
 
     def _initialize_game(self):
         """Initialize the game with characters, locations, and events based on the user's properties."""
-        character_list = [Character() for _in range(10)]
-        location_list = [Location() for _in range(2)]
+        character_list = [Character() for _ in range(10)]
+        location_list = [Location(self.parser) for _ in range(2)]
 
         for character in character_list:
+            self.add_character(character)
+
+        for location in location_list:
+            self.add_location(location)
 
     def start_game(self):
-        return self._main_game_loop()
-
+        """Start the game."""
+        self._initialize_game()
+        return self._main_game_loop() 
+    
+    
     def _main_game_loop(self):
         """The main game loop."""
         while self.continue_playing:
-            self.current_location = self.locations[0]
-            self.current_event = self.current_location.getEvent()
-            self.current_event.execute()
+           self.current_location = self.locations[0]
+           for event in self.current_location.events:
+                self.current_event = event
+                self.current_event.execute(self.party)
+                if not self.continue_playing: 
+                    return True 
+                elif self.continue_playing == "Save and quit":
+                    return "Save and quit"
+        return False
 
-            if self.party is None:
-                self.continue_playing = False
-                return "Save and quit"
-            else:
-                continue 
-            if self.continue_playing is False:
-                return True
-            elif self.continue_playing == "Save and quit":
-                return "Save and quit"
-            else:
-                return False
+def start_game():
+    """Entry point for starting the game."""
+    parser = UserInputParser()
+    user_factory = UserFactory()
+    instance_creator = InstanceCreator(user_factory, parser)
+
+    response = parser.parse("Would you like to start a new game? (yes/no)")
+    print(f"Response: {response}")
+    user = instance_creator.get_user_info(response)
+    if user is not None:
+        game_instance = user.current_game
+        if game_instance is not None:
+            response = game_instance.start_game()
+            if response == "Save and quit":
+                user.save_game()
+                print("Game saved. Goodbye!")
+                sys.exit()
+            elif response:
+                print("Goodbye!")
+                sys.exit()
+    else:
+        print("See you next time!")
+        sys.exit()
+
+if __name__ == '__main__':
+    start_game()
         
 class InstanceCreator:
 
@@ -324,4 +420,8 @@ class InstanceCreator:
             return None
 
     def _load_user(self) -> User:
-        pass
+        user_data = load_user_data_from_storage()
+        if user_data:
+            return User(user_data)
+        else: 
+            return None 
