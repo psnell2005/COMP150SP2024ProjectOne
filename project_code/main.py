@@ -3,17 +3,15 @@ import sys
 from typing import List 
 import json
 import random
-from project_code.src.UserInputParser import UserInputParser
-from project_code.src.InstanceCreator import InstanceCreator
-from project_code.src.UserFactory import UserFactory
+from UserInputParser import UserInputParser
+from InstanceCreator import InstanceCreator
+from UserFactory import UserFactory
 
 class Location:
     
     def __init__(self, parser, number_of_events: int = 1): 
         self.parser = parser
-        self.events = [Event(self.parser) for _in range(number_of_events)]
-
-    import json 
+        self.events = [Event(self.parser) for _ in range(number_of_events)]
 
     def create_custom_event_from_static_text_file(self, file_path):
         with open(file_path, "r") as file:
@@ -46,20 +44,20 @@ class Event:
                 }
                 self.pass_ = {
                     "message": "You passed."
+                }
                 self.partial_pass = {
                     "message": "You partially passed."
                 }
                 self.prompt_text = "A challenging coding problem appears, what will you do?"
-                self.primary: Statistic = Strength() 
-                self.secondary: Statistic = Dexterity() 
+                self.primary_statistic = None
+                self.secondary_statistic = None 
                  
     def execute(self, party):
         chosen_one = self.parser.select_party_member(party)
         chosen_skill = self.parser.select_skill(chosen_one)
-        self.set_status(EventStatus.PASS)
-        pass 
+        self.resolve_choice(party, chosen_one, chosen_skill)
 
-    def set_status(self, status: EventStatus = EventStatus.UNKNOWN) 
+    def set_status(self, status: EventStatus = EventStatus.UNKNOWN): 
         self.status = status 
     
     def resolve_choice(self, party, character, chosen_skill):
@@ -68,7 +66,19 @@ class Event:
         # if they do overlap, character passes
         # if one overlaps, the character partially passes 
         # to do this: make some checks --> is attr in skill, etc.
+        primary_stat_match = chosen_skill.primary_attribute == self.primary_statistic
+        secondary_stat_match = chosen_skill.secondary_attribute == self.secondary_statistic
 
+        if primary_stat_match and secondary_stat_match:
+            self.set_status(EventStatus.PASS)
+            print(self.pass_message["mesage"])
+        elif primary_stat_match or secondary_stat_match: 
+            self.set_status(EventStatus.PARTIAL_PASS)
+            print(self.partial_pass_message["message"])
+        else:
+            self.set_status(EventStatus.FAIL)
+            print(self.fail_message["message"])
+        
 class Character:
 
     def __init__(self, name: str = None):
@@ -134,7 +144,6 @@ class Game:
         self.continue_playing = True
 
         self._initialize_game()
-        
 
     def add_character(self, character: Character):
         """Add a character to the game."""
@@ -150,18 +159,40 @@ class Game:
 
     def _initialize_game(self):
         """Initialize the game with characters, locations, and events based on the user's properties."""
-        character_list = [Character() for _in range(10)]
-        location_list = [Location(self.parser) for _in range(2)]
+        character_list = [Character() for _ in range(10)]
+        location_list = [Location(self.parser) for _ in range(2)]
 
         for character in character_list:
             self.add_character(character)
 
-        for location in location list: 
-        self.add_location(location)
+        for location in location_list:
+            self.add_location(location)
 
     def start_game(self):
-        return self._main_game_loop()
+        parser = UserInputParser()
+        response = parser.parse("Would you like to start a new game? (yes/no): ")
+        print(f"Response: {response}")
 
+        user_factopry = UserFactory()
+        instance_creator = InstanceCreator(user_factory, parser)
+
+        if response.lower() == "yes":
+            user = instance_creator.get_user_info(response)
+            if user is not None:
+                game_instance = user.current_game
+            if game_instance is not None:
+                response = game_instance.start_game()
+                if response == "Save and quit":
+                    user.save_game()
+                    print("Game saved. Goodbye!")
+                    sys.exit()
+                elif response:
+                    print("Goodbye!")
+                    sys.exit()
+        else:
+            print("See you next time!")
+            sys.exit()
+    
     def _main_game_loop(self):
         """The main game loop."""
         while self.continue_playing:
@@ -173,14 +204,14 @@ class Game:
                 self.continue_playing = False
                 return "Save and quit"
             else:
-                continue 
+                continue
+
         if self.continue_playing is False:
             return True
         elif self.continue_playing == "Save and quit":
             return "Save and quit"
         else:
             return False
-
 class User:
 
     def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
@@ -191,11 +222,11 @@ class User:
         self.parser = parser 
 
     def _get_retrieve_saved_game_state_or_create_new_game(self) -> Game:
-        new_game = Game(self.parser)
-        return new_game
-
+        return Game(self.parser)
+    
     def save_game(self):
-        pass
+        with open(f"{self.username}_saved_game.json", "w") as file: 
+            json.dump(self.current_game, file)
         
 class UserInputParser:
 
@@ -203,8 +234,8 @@ class UserInputParser:
         self.style = "console"
 
     def parse(self, prompt) -> str:
-        response: str = input(prompt)
-        return response
+        return input(prompt)
+      
 
 class UserFactory:
     @staticmethod 
@@ -323,22 +354,6 @@ class Spirit(Statistic):
         super().__init__(value)
         self.description = "Spirit is a measure of connection to otherworldly energies and metaphysical strength."
 
-class User:
-
-    def __init__(self, parser, username: str, password: str, legacy_points: int = 0):
-        self.username = username
-        self.password = password
-        self.legacy_points = legacy_points
-        self.current_game = self._get_retrieve_saved_game_state_or_create_new_game()
-        self.parser = parser 
-
-    def _get_retrieve_saved_game_state_or_create_new_game(self) -> Game:
-        new_game = Game(self.parser)
-        return new_game
-
-    def save_game(self):
-        pass
-
 def start_game():
     parser = UserInputParser()
     user_factory = UserFactory()
@@ -365,3 +380,74 @@ def start_game():
 if __name__ == '__main__':
     start_game()
         
+
+
+import unittest
+from unittest.mock import patch
+from main import Character, Location, Event, Game, User, UserInputParser, UserFactory, InstanceCreator
+
+class TestGame(unittest.TestCase):
+    
+    def setUp(self):
+        self.parser = UserInputParser()
+        self.user_factory = UserFactory()
+        self.instance_creator = InstanceCreator(self.user_factory, self.parser)
+        self.game = Game(self.parser)
+    
+    def test_character_creation(self):
+        # Test character creation
+        character = Character(name="Test Character")
+        self.assertEqual(character.name, "Test Character")
+    
+    def test_location_creation(self):
+        # Test location creation
+        location = Location(self.parser)
+        self.assertIsInstance(location.events, list)
+        self.assertTrue(all(isinstance(event, Event) for event in location.events))
+    
+    def test_event_execution(self):
+        # Test event execution
+        event = Event(self.parser, {
+            "primary_attribute": "strength",
+            "secondary_attribute": "intelligence",
+            "prompt text": "Test event prompt",
+            "pass": {"message": "You passed."},
+            "fail": {"message": "You failed."},
+            "partial pass": {"message": "You partially passed."}
+        })
+        party = [Character(name="Test Character")]
+        with patch.object(self.parser, 'select_party_member', return_value=party[0]), \
+             patch.object(self.parser, 'select_skill', return_value=party[0].strength):
+            event.execute(party)
+            self.assertEqual(event.status, "pass")
+    
+    def test_party_management(self):
+        # Test party management
+        self.game.add_character(Character(name="Character 1"))
+        self.game.add_character(Character(name="Character 2"))
+        self.assertEqual(len(self.game.characters), 2)
+        
+        # Test adding characters to party
+        character_to_add = self.game.characters[0]
+        self.game.party.append(character_to_add)
+        self.assertIn(character_to_add, self.game.party)
+        
+        # Test removing characters from party
+        character_to_remove = self.game.party[0]
+        self.game.party.remove(character_to_remove)
+        self.assertNotIn(character_to_remove, self.game.party)
+    
+    def test_save_game_functionality(self):
+        # Test saving game functionality
+        user = User(self.parser, "test_user", "password")
+        user.current_game = self.game
+        user.save_game()
+        # Assert that the file was created
+        import os
+        self.assertTrue(os.path.isfile("test_user_saved_game.json"))
+    
+if __name__ == "__main__":
+    unittest.main()
+
+
+print(sys.path)
