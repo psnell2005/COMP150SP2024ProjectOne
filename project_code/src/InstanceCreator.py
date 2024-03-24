@@ -1,3 +1,4 @@
+<<<<<<< HEAD
       
 class InstanceCreator:
 
@@ -20,3 +21,6 @@ class InstanceCreator:
 
     def _load_user(self) -> User:
         pass
+=======
+
+>>>>>>> 4be701d8b246c6138b13163a2276fbe97ec890a5
