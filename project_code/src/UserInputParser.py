@@ -4,5 +4,5 @@ class UserInputParser:
         self.style = "console"
 
     def parse(self, prompt) -> str:
-        response: str = input(prompt)
-        return response
+        return input(prompt)
+      
