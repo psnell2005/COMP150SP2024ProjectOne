@@ -3,10 +3,48 @@ import sys
 from typing import List 
 import json
 import random
-from UserInputParser import UserInputParser
-from InstanceCreator import InstanceCreator
-from UserFactory import UserFactory
+from src.UserInputParser import UserInputParser
+from src.InstanceCreator import InstanceCreator
+from src.UserFactory import UserFactory
+    
 
+from enum import Enum
+from typing import List
+
+# Assuming these modules are provided within the code snippet
+from .UserInputParser import UserInputParser
+from .InstanceCreator import InstanceCreator
+from .UserFactory import UserFactory
+from .EventInputParser import EventInputParser
+
+
+# Add the function definitions here
+import pickle
+
+def start_game():
+    """Entry point for starting the game."""
+    parser = UserInputParser()
+    user_factory = UserFactory()
+    instance_creator = InstanceCreator(user_factory, parser)
+
+    response = parser.parse("Would you like to start a new game? (yes/no)")
+    print(f"Response: {response}")
+    user = instance_creator.get_user_info(response)
+    if user is not None:
+        game_instance = user.current_game
+        if game_instance is not None:
+            response = game_instance.start_game()
+            if response == "Save and quit":
+                user.save_game()
+                print("Game saved. Goodbye!")
+                sys.exit()
+            elif response:
+                print("Goodbye!")
+                sys.exit()
+    else:
+        print("See you next time!")
+        sys.exit()
+        
 class Location:
     
     def __init__(self, parser, number_of_events: int = 1): 
@@ -19,27 +57,56 @@ class Location:
 
         return Event(self.parser, data)
     
+class InstanceCreator:
 
-from enum import Enum
-from typing import List
+    def __init__(self, user_factory: UserFactory, parser: UserInputParser):
+        self.user_factory = user_factory
+        self.parser = parser
 
-# Assuming these modules are provided within the code snippet
-from .UserInputParser import UserInputParser
-from .InstanceCreator import InstanceCreator
-from .UserFactory import UserFactory
-from .EventInputParser import EventInputParser
+    def _new_user_or_login(self) -> User:
+        response = self.parser.parse("Create a new username or login to an existing account?")
+        if "login" in response:
+            return self._load_user()
+        else:
+                return self.user_factory.create_user(self.parser)
 
-# Ensuring other modules used in the code are imported properly
-from .Statistic import Statistic, Strength, Dexterity, Constitution, Vitality, Endurance, Intelligence, Wisdom, Knowledge, Willpower, Spirit
-from .EventStatus import EventStatus
-from .Event import Event
-from .User import User
-from .Character import Character
-from .Location import Location
-from .Game import Game
+    def get_user_info(self, response: str) -> User | None:
+        if "yes" in response:
+            return self._new_user_or_login()
+        else:
+            return None
 
-# Add the function definitions here
-import pickle
+    def _load_user(self) -> User:
+        user_data = load_user_data_from_storage()
+        if user_data:
+            return User(user_data)
+        else: 
+            return None 
+
+
+def start_game():
+    """Entry point for starting the game."""
+    parser = UserInputParser()
+    user_factory = UserFactory()
+    instance_creator = InstanceCreator(user_factory, parser)
+
+    response = parser.parse("Would you like to start a new game? (yes/no)")
+    print(f"Response: {response}")
+    user = instance_creator.get_user_info(response)
+    if user is not None:
+        game_instance = user.current_game
+        if game_instance is not None:
+            response = game_instance.start_game()
+            if response == "Save and quit":
+                user.save_game()
+                print("Game saved. Goodbye!")
+                sys.exit()
+            elif response:
+                print("Goodbye!")
+                sys.exit()
+    else:
+        print("See you next time!")
+        sys.exit()
 
 def save_to_file(data, filename="saved_game_state.pickle"):
     """Save game state data to a file."""
@@ -207,7 +274,7 @@ class Event:
                 self.fail = {
                     "message": "You failed."
                 }
-                self.pass = {
+                self.pass_message = {
                     "message": "You passed."
                 }
                 self.partial_pass = {
@@ -337,7 +404,7 @@ class Location:
     
     def __init__(self, parser, number_of_events: int = 1): 
         self.parser = parser
-        self.events = [Event(self.parser) for _in range(number_of_events)]
+        self.events = [Event(self.parser) for _ in range(number_of_events)]
 
 class Game:
     def __init__(self, parser):
@@ -391,129 +458,9 @@ class Game:
                 elif self.continue_playing == "Save and quit":
                     return "Save and quit"
         return False
-
-def start_game():
-    """Entry point for starting the game."""
-    parser = UserInputParser()
-    user_factory = UserFactory()
-    instance_creator = InstanceCreator(user_factory, parser)
-
-    response = parser.parse("Would you like to start a new game? (yes/no)")
-    print(f"Response: {response}")
-    user = instance_creator.get_user_info(response)
-    if user is not None:
-        game_instance = user.current_game
-        if game_instance is not None:
-            response = game_instance.start_game()
-            if response == "Save and quit":
-                user.save_game()
-                print("Game saved. Goodbye!")
-                sys.exit()
-            elif response:
-                print("Goodbye!")
-                sys.exit()
-    else:
-        print("See you next time!")
-        sys.exit()
-
-if __name__ == '__main__':
-    start_game()
-        
-class InstanceCreator:
-
-    def __init__(self, user_factory: UserFactory, parser: UserInputParser):
-        self.user_factory = user_factory
-        self.parser = parser
-
-    def _new_user_or_login(self) -> User:
-        response = self.parser.parse("Create a new username or login to an existing account?")
-        if "login" in response:
-            return self._load_user()
-        else:
-                return self.user_factory.create_user(self.parser)
-
-    def get_user_info(self, response: str) -> User | None:
-        if "yes" in response:
-            return self._new_user_or_login()
-        else:
-            return None
-
-    def _load_user(self) -> User:
-        user_data = load_user_data_from_storage()
-        if user_data:
-            return User(user_data)
-        else: 
-            return None 
-
-
-def start_game():
-    """Entry point for starting the game."""
-    parser = UserInputParser()
-    user_factory = UserFactory()
-    instance_creator = InstanceCreator(user_factory, parser)
-
-    response = parser.parse("Would you like to start a new game? (yes/no)")
-    print(f"Response: {response}")
-    user = instance_creator.get_user_info(response)
-    if user is not None:
-        game_instance = user.current_game
-        if game_instance is not None:
-            response = game_instance.start_game()
-            if response == "Save and quit":
-                user.save_game()
-                print("Game saved. Goodbye!")
-                sys.exit()
-            elif response:
-                print("Goodbye!")
-                sys.exit()
-    else:
-        print("See you next time!")
-        sys.exit()
-
-        def save_to_file(data, filename="saved_game_state.pickle"):
-    """Save game state data to a file."""
-    with open(filename, "wb") as file:
-        pickle.dump(data, file)
-
-def load_from_file(filename="saved_game_state.pickle"):
-    """Load game state data from a file."""
-    try:
-        with open(filename, "rb") as file:
-            data = pickle.load(file)
-        return data
-    except FileNotFoundError:
-        return None 
     
 if __name__ == '__main__':
     start_game()
 
-
-def serialize_game_state(game_state):
-    """Serialize the game state data to a format suitable for saving."""
-    # You can implement this function based on your game's requirements
-    # For example, you can convert the game state object into a dictionary
-    # containing all the necessary information to reconstruct the game state.
-    serialized_data = {...}  # Fill this with appropriate data
-    return serialized_data
-
-def deserialize_game_state(serialized_data):
-    """Deserialize the serialized game state data."""
-    # You can implement this function to convert serialized data back into
-    # the game state object, using the appropriate logic to reconstruct
-    # the game state from the serialized data.
-    game_state = ...  # Reconstruct game state from serialized data
-    return game_state
-
-def load_user_data_from_storage(filename="user_data.pickle"):
-    """Load user data from storage."""
-    try:
-        with open(filename, "rb") as file:
-            user_data = pickle.load(file)
-        return user_data
-    except FileNotFoundError:
-        return None
-
-def save_user_data_to_storage(user_data, filename="user_data.pickle"):
-    """Save user data to storage."""
-    with open(filename, "wb") as file:
-        pickle.dump(user_data, file)
+import sys
+print(sys.path)

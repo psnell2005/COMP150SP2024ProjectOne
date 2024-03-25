@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-      
+     
 class InstanceCreator:
 
     def __init__(self, user_factory: UserFactory, parser: UserInputParser):
@@ -21,6 +20,3 @@ class InstanceCreator:
 
     def _load_user(self) -> User:
         pass
-=======
-
->>>>>>> 4be701d8b246c6138b13163a2276fbe97ec890a5
