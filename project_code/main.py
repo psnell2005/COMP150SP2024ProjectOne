@@ -19,56 +19,8 @@ from .Character import Character
 from .Location import Location
 from .Game import Game
 
-# Add the function definitions here
+
 import pickle
-
-def save_to_file(data, filename="saved_game_state.pickle"):
-    """Save game state data to a file."""
-    with open(filename, "wb") as file:
-        pickle.dump(data, file)
-
-def load_from_file(filename="saved_game_state.pickle"):
-    """Load game state data from a file."""
-    try:
-        with open(filename, "rb") as file:
-            data = pickle.load(file)
-        return data
-    except FileNotFoundError:
-        return None 
-    
-if __name__ == '__main__':
-    start_game()
-
-
-def serialize_game_state(game_state):
-    """Serialize the game state data to a format suitable for saving."""
-    # You can implement this function based on your game's requirements
-    # For example, you can convert the game state object into a dictionary
-    # containing all the necessary information to reconstruct the game state.
-    serialized_data = {...}  # Fill this with appropriate data
-    return serialized_data
-
-def deserialize_game_state(serialized_data):
-    """Deserialize the serialized game state data."""
-    # You can implement this function to convert serialized data back into
-    # the game state object, using the appropriate logic to reconstruct
-    # the game state from the serialized data.
-    game_state = ...  # Reconstruct game state from serialized data
-    return game_state
-
-def load_user_data_from_storage(filename="user_data.pickle"):
-    """Load user data from storage."""
-    try:
-        with open(filename, "rb") as file:
-            user_data = pickle.load(file)
-        return user_data
-    except FileNotFoundError:
-        return None
-
-def save_user_data_to_storage(user_data, filename="user_data.pickle"):
-    """Save user data to storage."""
-    with open(filename, "wb") as file:
-        pickle.dump(user_data, file)
 
 class UserInputParser:
 
@@ -237,19 +189,19 @@ event2 = Event(
 )
 
 event3 = Event(
-    name="Infiltrating the Demon King's Fortress",
-    requirements="Sneak into the heavily guarded fortress of the Demon King to gather intelligence and weaken his defenses.",
-    success_outcome="The heroes successfully infiltrate the fortress, sabotaging key elements of the Demon King's army and gaining valuable information.",
+    name="Infiltrating the Dragon's Fortress",
+    requirements="Sneak into the heavily guarded fortress of the dragon to gather intelligence and weaken his defenses.",
+    success_outcome="The heroes successfully infiltrate the fortress, sabotaging key elements of the dragon's army and gaining valuable information.",
     partial_success_outcome="The heroes manage to enter the fortress but are quickly discovered, forcing them to retreat before completing their mission.",
-    failure_outcome="The heroes are captured while attempting to infiltrate the fortress, giving the Demon King the upper hand in the upcoming battle."
+    failure_outcome="The heroes are captured while attempting to infiltrate the fortress, giving the dragon the upper hand in the upcoming battle."
 )
 
 event4 = Event(
-    name="Confrontation with the Demon King",
-    requirements="Engage in a climactic battle with the Demon King to decide the fate of the world.",
-    success_outcome="Through courage, teamwork, and determination, the heroes emerge victorious, vanquishing the Demon King and saving the world from his tyranny.",
-    partial_success_outcome="The heroes put up a valiant fight, but the Demon King proves too powerful to defeat outright. They manage to weaken him, buying time for a temporary retreat.",
-    failure_outcome="Despite their best efforts, the heroes are no match for the overwhelming might of the Demon King. They are defeated, and the world falls under his control."
+    name="Confrontation with the Dragon",
+    requirements="Engage in a climactic battle with the dragon to decide the fate of the world.",
+    success_outcome="Through courage, teamwork, and determination, the heroes emerge victorious, vanquishing the dragon and saving the world from his tyranny.",
+    partial_success_outcome="The heroes put up a valiant fight, but the dragon proves too powerful to defeat outright. They manage to weaken him, buying time for a temporary retreat.",
+    failure_outcome="Despite their best efforts, the heroes are no match for the overwhelming might of the dragon. They are defeated, and the world falls under his control."
 )
 
 game_instance.add_event(event1)
@@ -318,7 +270,7 @@ class Location:
     
     def __init__(self, parser, number_of_events: int = 1): 
         self.parser = parser
-        self.events = [Event(self.parser) for _in range(number_of_events)]
+        self.events = [Event(self.parser) for _ in range(number_of_events)]
 
 class Game:
     def __init__(self, parser):
@@ -373,29 +325,6 @@ class Game:
                     return "Save and quit"
         return False
 
-def start_game():
-    """Entry point for starting the game."""
-    parser = UserInputParser()
-    user_factory = UserFactory()
-    instance_creator = InstanceCreator(user_factory, parser)
-
-    response = parser.parse("Would you like to start a new game? (yes/no)")
-    print(f"Response: {response}")
-    user = instance_creator.get_user_info(response)
-    if user is not None:
-        game_instance = user.current_game
-        if game_instance is not None:
-            response = game_instance.start_game()
-            if response == "Save and quit":
-                user.save_game()
-                print("Game saved. Goodbye!")
-                sys.exit()
-            elif response:
-                print("Goodbye!")
-                sys.exit()
-    else:
-        print("See you next time!")
-        sys.exit()
 
 if __name__ == '__main__':
     start_game()
@@ -425,3 +354,76 @@ class InstanceCreator:
             return User(user_data)
         else: 
             return None 
+
+
+def start_game():
+    """Entry point for starting the game."""
+    parser = UserInputParser()
+    user_factory = UserFactory()
+    instance_creator = InstanceCreator(user_factory, parser)
+
+    response = parser.parse("Would you like to start a new game? (yes/no)")
+    print(f"Response: {response}")
+    user = instance_creator.get_user_info(response)
+    if user is not None:
+        game_instance = user.current_game
+        if game_instance is not None:
+            response = game_instance.start_game()
+            if response == "Save and quit":
+                user.save_game()
+                print("Game saved. Goodbye!")
+                sys.exit()
+            elif response:
+                print("Goodbye!")
+                sys.exit()
+    else:
+        print("See you next time!")
+        sys.exit()
+
+        def save_to_file(data, filename="saved_game_state.pickle"):
+    """Save game state data to a file."""
+    with open(filename, "wb") as file:
+        pickle.dump(data, file)
+
+def load_from_file(filename="saved_game_state.pickle"):
+    """Load game state data from a file."""
+    try:
+        with open(filename, "rb") as file:
+            data = pickle.load(file)
+        return data
+    except FileNotFoundError:
+        return None 
+    
+if __name__ == '__main__':
+    start_game()
+
+
+def serialize_game_state(game_state):
+    """Serialize the game state data to a format suitable for saving."""
+    # You can implement this function based on your game's requirements
+    # For example, you can convert the game state object into a dictionary
+    # containing all the necessary information to reconstruct the game state.
+    serialized_data = {...}  # Fill this with appropriate data
+    return serialized_data
+
+def deserialize_game_state(serialized_data):
+    """Deserialize the serialized game state data."""
+    # You can implement this function to convert serialized data back into
+    # the game state object, using the appropriate logic to reconstruct
+    # the game state from the serialized data.
+    game_state = ...  # Reconstruct game state from serialized data
+    return game_state
+
+def load_user_data_from_storage(filename="user_data.pickle"):
+    """Load user data from storage."""
+    try:
+        with open(filename, "rb") as file:
+            user_data = pickle.load(file)
+        return user_data
+    except FileNotFoundError:
+        return None
+
+def save_user_data_to_storage(user_data, filename="user_data.pickle"):
+    """Save user data to storage."""
+    with open(filename, "wb") as file:
+        pickle.dump(user_data, file)
