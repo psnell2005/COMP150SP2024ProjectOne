@@ -19,4 +19,9 @@ class InstanceCreator:
             return None
 
     def _load_user(self) -> User:
-        pass
+        # Implement the logic to load user data from storage and return a User object
+        user_data = load_user_data_from_storage()
+        if user_data:
+            return User(self.parser, username=user_data["username"], password=user_data["password"])
+        else:
+            return None
