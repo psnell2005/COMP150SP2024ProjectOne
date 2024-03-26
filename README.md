@@ -8,12 +8,12 @@ A text-based fantasy game
 
 
 # AUTHOR INFO
- Full name: Jennifer Roe, Phoebe S
- Email: jroe1@luc.edu, 
+ Full name: Jennifer Roe, Phoebe
+ Email: jroe1@luc.edu,  
  Course number and section: COMP 150
 
 # ERRORS 
- Everything
+
 
 # SOURCES
 
